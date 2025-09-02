@@ -18,6 +18,7 @@ import { StatusUpdateDialog } from '@/components/status-update-dialog';
 
 interface Report {
   id: string;
+  track_id: string;
   type_of_crime: string;
   Specific_Type_of_Crime: string;
   Report_Details: string;
@@ -47,6 +48,14 @@ export default function PoliceAdminPage() {
         console.error('Error fetching reports:', error);
       } else {
         console.log('Fetched reports:', data);
+        // Debug log to check if track_id exists in the data
+        if (data && data.length > 0) {
+          console.log('First report data:', {
+            id: data[0].id,
+            track_id: data[0].track_id,
+            type: data[0].type_of_crime
+          });
+        }
         setReports(data || []);
       }
       setLoading(false);
@@ -105,12 +114,12 @@ export default function PoliceAdminPage() {
                 <TableCell>
                   <div className="flex gap-2">
                     <FeedbackDialog 
-                      reportId={report.id} 
+                      reportId={report.track_id} 
                       feedbackBy="Police"
                       onFeedbackSubmit={() => window.location.reload()}
                     />
                     <StatusUpdateDialog
-                      reportId={report.id}
+                      reportId={report.track_id}
                       currentStatus={report.status || 'submitted'}
                       onStatusUpdate={() => window.location.reload()}
                     />

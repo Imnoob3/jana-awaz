@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MessageCircle, Heart, Flag, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';

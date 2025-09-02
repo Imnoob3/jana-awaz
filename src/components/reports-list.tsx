@@ -2,13 +2,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Report } from '@/lib/types';
+import { LocalReport } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { ReportCard } from './report-card';
 import { Search } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
-export function ReportsList({ initialReports }: { initialReports: Report[] }) {
+export function ReportsList({ initialReports }: { initialReports: LocalReport[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation();
 

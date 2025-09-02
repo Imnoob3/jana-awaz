@@ -8,7 +8,7 @@ import { ReportsList } from '@/components/reports-list';
 import { Shield, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import type { Report } from '@/lib/types';
+import type { LocalReport } from '@/lib/types';
 
 const agencyConfig = {
     ciaa: {
@@ -25,9 +25,9 @@ const agencyConfig = {
     }
 };
 
-export default function ReportsByAgencyPage({ params }: { params: { agency: 'ciaa' | 'police' } }) {
+export default function ReportsByAgencyPage({ params }: any) {
   const agencyKey = params.agency.toLowerCase();
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<LocalReport[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -27,7 +27,15 @@ export function ReCaptchaVerification() {
     const script = document.createElement('script');
     script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`;
     script.async = true;
+    script.onload = () => {
+      console.log('reCAPTCHA script loaded successfully');
+    };
+    script.onerror = (error) => {
+      console.error('Error loading reCAPTCHA script:', error);
+    };
     document.body.appendChild(script);
+
+    console.log('Using site key:', process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
 
     return () => {
       document.body.removeChild(script);
@@ -37,7 +45,15 @@ export function ReCaptchaVerification() {
   const handleVerify = async () => {
     setIsVerifying(true);
     try {
+      if (!window.grecaptcha) {
+        throw new Error('reCAPTCHA not loaded yet');
+      }
+
+      console.log('Attempting verification with site key:', process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
+      
       const token = await window.grecaptcha.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: 'submit' });
+      console.log('Received token:', token);
+      
       // Here you would typically verify the token on your backend
       // For now, we'll just simulate a successful verification
       setIsVerified(true);
@@ -46,6 +62,7 @@ export function ReCaptchaVerification() {
       localStorage.setItem('recaptchaVerified', 'true');
     } catch (error) {
       console.error('reCAPTCHA verification failed:', error);
+      alert('reCAPTCHA verification failed. Please check the console for details.');
     } finally {
       setIsVerifying(false);
     }

@@ -1,4 +1,4 @@
-import type { Grievance, GrievanceComment } from './types';
+import type { Grievance, GrievanceComment, LocalReport } from './types';
 import { supabase } from './supabase';
 
 // Admin functions for managing grievances and comments
@@ -46,7 +46,7 @@ export const deleteGrievance = async (id: string): Promise<void> => {
 
 const REPORTS_KEY = 'reports';
 
-export const addGrievance = async (grievance: Omit<Grievance, 'id' | 'createdAt'>) => {
+export const addGrievance = async (grievance: Omit<Grievance, 'id' | 'createdAt' | 'likes' | 'comments'>) => {
   const { data, error } = await supabase
     .from('grievances')
     .insert([
@@ -218,17 +218,7 @@ export const addGrievanceComment = async (grievanceId: string, text: string): Pr
   };
 };
 
-// Legacy code for reports
-type LocalReport = {
-    id: string;
-    reportText: string;
-    photoDataUri: string;
-    crimeType: 'Government' | 'Civilian' | 'ICC';
-    crimeSubType: string;
-    createdAt: string;
-    district: string;
-    localAddress: string;
-}
+// Legacy code for reports (localStorage-backed)
 
 const initialReports: LocalReport[] = [
     {
@@ -285,4 +275,16 @@ if (typeof window !== 'undefined' && !localStorage.getItem(REPORTS_KEY)) {
 export function getReportsByAgency(agency: 'Government' | 'Civilian' | 'ICC'): LocalReport[] {
   const reports = getLocalStorageItem<LocalReport[]>(REPORTS_KEY, []);
   return reports.filter(report => report.crimeType === agency).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export function addReport(report: Omit<LocalReport, 'id' | 'createdAt'>): LocalReport {
+  const reports = getLocalStorageItem<LocalReport[]>(REPORTS_KEY, []);
+  const newReport: LocalReport = {
+    ...report,
+    id: `${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    createdAt: new Date().toISOString(),
+  };
+  const updated = [newReport, ...reports];
+  setLocalStorageItem(REPORTS_KEY, updated);
+  return newReport;
 }

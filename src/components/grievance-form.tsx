@@ -1,60 +1,15 @@
 
-'use client';
+"use client";
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Loader2, MessageSquareWarning, Upload } from 'lucide-react';
 import Image from 'next/image';
-
-export function GrievanceForm() {
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const router = useRouter();
-
-  const removePhoto = () => {
-    setPhotoPreview(null);
-  };
-
-  return (
-    <div>
-      {photoPreview ? (
-        <div className="relative group">
-          <div className="relative w-full h-[300px]">
-            <Image
-              src={photoPreview}
-              alt="Photo preview"
-              fill
-              sizes="(max-width: 768px) 100vw, 700px"
-              className="rounded-md object-contain border shadow-lg bg-muted"
-            />
-            <Button 
-              type="button" 
-              variant="destructive" 
-              size="icon" 
-              className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" 
-              onClick={removePhoto}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      ) : null}
-                  <Button 
-                    type="button" 
-                    variant="destructive" 
-                    size="icon" 
-                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" 
-                    onClick={removePhoto}
-                  >
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">{t('reportForm.removePhoto')}</span>
-                  </Button>
-                </div>)t { Textarea } from '@/components/ui/textarea';
+import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, MessageSquareWarning, Upload, X } from 'lucide-react';
-import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Report } from '@/lib/types';
+import { LocalReport } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import Image from 'next/image';
 import { Clock, Shield, Users, MapPin, Tag } from 'lucide-react';
@@ -9,7 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from '@/hooks/use-translation';
 import { Badge } from './ui/badge';
 
-export function ReportCard({ report }: { report: Report }) {
+export function ReportCard({ report }: { report: LocalReport }) {
   const { t } = useTranslation();
   
   const getCrimeTypeIcon = () => {

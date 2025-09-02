@@ -13,7 +13,7 @@ import { StatusTimeline } from '@/components/status-timeline';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 
-export default function SubmissionStatusPage({ params }: { params: { id: string } }) {
+export default function SubmissionStatusPage({ params }: any) {
   const { id } = params;
   const { t } = useTranslation();
 

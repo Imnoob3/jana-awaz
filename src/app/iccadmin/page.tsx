@@ -18,6 +18,7 @@ import { StatusUpdateDialog } from '@/components/status-update-dialog';
 
 interface Report {
   id: string;
+  track_id: string;
   type_of_crime: string;
   Specific_Type_of_Crime: string;
   Report_Details: string;
@@ -104,12 +105,12 @@ export default function ICCAdminPage() {
                 <TableCell>
                   <div className="flex gap-2">
                     <FeedbackDialog 
-                      reportId={report.id} 
+                      reportId={report.track_id} 
                       feedbackBy="ICC"
                       onFeedbackSubmit={() => window.location.reload()}
                     />
                     <StatusUpdateDialog
-                      reportId={report.id}
+                      reportId={report.track_id}
                       currentStatus={report.status || 'submitted'}
                       onStatusUpdate={() => window.location.reload()}
                     />

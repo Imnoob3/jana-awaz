@@ -9,23 +9,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslation } from '@/hooks/use-translation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Grievance, Report } from '@/lib/types';
+import { Grievance, LocalReport } from '@/lib/types';
 import { GrievanceCard } from '@/components/grievance-card';
 
 export default function ViewReportsPage() {
   const { t } = useTranslation();
-  const [ciaaReports, setCiaaReports] = useState<Report[]>([]);
-  const [policeReports, setPoliceReports] = useState<Report[]>([]);
-  const [iccReports, setIccReports] = useState<Report[]>([]);
+  const [ciaaReports, setCiaaReports] = useState<LocalReport[]>([]);
+  const [policeReports, setPoliceReports] = useState<LocalReport[]>([]);
+  const [iccReports, setIccReports] = useState<LocalReport[]>([]);
   const [grievances, setGrievances] = useState<Grievance[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setCiaaReports(getReportsByAgency('Government'));
-    setPoliceReports(getReportsByAgency('Civilian'));
-    setIccReports(getReportsByAgency('ICC'));
-    setGrievances(getGrievances());
-    setLoading(false);
+    const load = async () => {
+      setCiaaReports(getReportsByAgency('Government'));
+      setPoliceReports(getReportsByAgency('Civilian'));
+      setIccReports(getReportsByAgency('ICC'));
+      const g = await getGrievances();
+      setGrievances(g);
+      setLoading(false);
+    };
+    load();
   }, []);
 
   if (loading) {

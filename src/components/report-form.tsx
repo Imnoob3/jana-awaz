@@ -19,7 +19,6 @@ import { districtsOfNepal } from '@/lib/districts';
 import { CrimeTypeSelector } from './crime-type-selector';
 import { reportSchema } from '@/app/report/schema';
 import { supabase } from '@/lib/supabase';
-import type { Report } from '@/lib/types';
 
 
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {

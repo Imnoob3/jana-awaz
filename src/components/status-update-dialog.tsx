@@ -46,10 +46,15 @@ export function StatusUpdateDialog({
     }
 
     setIsSubmitting(true);
+    console.log('Updating status for report:', {
+      track_id: reportId,
+      currentStatus,
+      newStatus: selectedStatus
+    });
     const { error } = await supabase
       .from('police')
       .update({ status: selectedStatus })
-      .eq('id', reportId);
+      .eq('track_id', reportId);
 
     setIsSubmitting(false);
 

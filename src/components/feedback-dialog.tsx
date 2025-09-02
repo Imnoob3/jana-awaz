@@ -36,6 +36,7 @@ export function FeedbackDialog({ reportId, onFeedbackSubmit, feedbackBy }: Feedb
       return;
     }
 
+    console.log('Submitting feedback for report with track_id:', reportId);
     setIsSubmitting(true);
     
     const { error } = await supabase
@@ -46,7 +47,7 @@ export function FeedbackDialog({ reportId, onFeedbackSubmit, feedbackBy }: Feedb
         feedback_by: feedbackBy,
         status: 'under_review'
       })
-      .eq('id', reportId);
+      .eq('track_id', reportId);
 
     setIsSubmitting(false);
 

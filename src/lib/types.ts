@@ -38,6 +38,16 @@ export type Grievance = {
   comments: GrievanceComment[];
 };
 
-    
+// Local-only report type used for demo/legacy UI lists
+export type LocalReport = {
+  id: string;
+  reportText: string;
+  photoDataUri: string;
+  crimeType: 'Government' | 'Civilian' | 'ICC';
+  crimeSubType: string;
+  createdAt: string;
+  district: string;
+  localAddress: string;
+};
 
     
