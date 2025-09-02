@@ -24,12 +24,12 @@ const civilianCrimeTypes = [
 ];
 
 interface CrimeTypeSelectorProps {
-  crimeType: 'government' | 'civilian';
+  crimeType: 'Government Crime' | 'Civilian Crime';
 }
 
 export function CrimeTypeSelector({ crimeType }: CrimeTypeSelectorProps) {
   const { t } = useTranslation();
-  const options = crimeType === 'government' ? governmentCrimeTypes : civilianCrimeTypes;
+  const options = crimeType === 'Government Crime' ? governmentCrimeTypes : civilianCrimeTypes;
   const [selectedValue, setSelectedValue] = useState('');
 
   useEffect(() => {

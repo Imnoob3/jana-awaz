@@ -11,6 +11,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card } from '@/components/ui/card';
+import { ExpandableText } from '@/components/expandable-text';
+import { FeedbackDialog } from '@/components/feedback-dialog';
+import { ImagePreview } from '@/components/image-preview';
+import { StatusUpdateDialog } from '@/components/status-update-dialog';
 
 interface Report {
   id: string;
@@ -21,6 +25,10 @@ interface Report {
   Local_Address_Tole: string;
   image: string;
   created_at: string;
+  feedback?: string;
+  feedback_date?: string;
+  feedback_by?: string;
+  status?: string;
 }
 
 export default function PoliceAdminPage() {
@@ -38,6 +46,7 @@ export default function PoliceAdminPage() {
       if (error) {
         console.error('Error fetching reports:', error);
       } else {
+        console.log('Fetched reports:', data);
         setReports(data || []);
       }
       setLoading(false);
@@ -57,26 +66,55 @@ export default function PoliceAdminPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Image</TableHead>
               <TableHead>Crime Type</TableHead>
               <TableHead>Specific Type</TableHead>
               <TableHead>District</TableHead>
               <TableHead>Local Address</TableHead>
               <TableHead>Details</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Feedback</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {reports.map((report) => (
               <TableRow key={report.id}>
+                <TableCell>
+                  <ImagePreview imageUrl={report.image} alt={`Report from ${report.District}`} />
+                </TableCell>
                 <TableCell>{report.type_of_crime}</TableCell>
                 <TableCell>{report.Specific_Type_of_Crime}</TableCell>
                 <TableCell>{report.District}</TableCell>
                 <TableCell>{report.Local_Address_Tole}</TableCell>
-                <TableCell className="max-w-md truncate">
-                  {report.Report_Details}
+                <TableCell className="max-w-md">
+                  <ExpandableText text={report.Report_Details} />
                 </TableCell>
                 <TableCell>
                   {new Date(report.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell>{report.status || 'submitted'}</TableCell>
+                <TableCell>
+                  {report.feedback ? (
+                    <ExpandableText text={`${report.feedback} (${report.feedback_date})`} />
+                  ) : (
+                    'No feedback yet'
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <FeedbackDialog 
+                      reportId={report.id} 
+                      feedbackBy="Police"
+                      onFeedbackSubmit={() => window.location.reload()}
+                    />
+                    <StatusUpdateDialog
+                      reportId={report.id}
+                      currentStatus={report.status || 'submitted'}
+                      onStatusUpdate={() => window.location.reload()}
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

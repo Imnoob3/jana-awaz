@@ -47,7 +47,7 @@ export function ReportForm() {
   const [errors, setErrors] = useState<any>({});
   const photoInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const [crimeType, setCrimeType] = useState<'government' | 'civilian' | null>(null);
+  const [crimeType, setCrimeType] = useState<'Government Crime' | 'Civilian Crime' | null>(null);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,6 +109,8 @@ export function ReportForm() {
         Local_Address_Tole: validatedFields.data.localAddress,
         image: validatedFields.data.photoDataUri || 'https://picsum.photos/400/300',
     };
+    
+    console.log('Submitting data:', submissionData);
 
     const { data, error } = await supabase
       .from("police")
@@ -144,16 +146,16 @@ export function ReportForm() {
                 <RadioGroup 
                   name="crimeType" 
                   className="grid grid-cols-1 md:grid-cols-2 gap-4" 
-                  onValueChange={(value) => setCrimeType(value as 'government' | 'civilian')}
+                  onValueChange={(value) => setCrimeType(value as 'Government Crime' | 'Civilian Crime')}
                   required
                 >
                   <div>
-                    <RadioGroupItem value="government" id="government" className="peer sr-only" />
+                    <RadioGroupItem value="Government Crime" id="government" className="peer sr-only" />
                     <Label
                       htmlFor="government"
                       className={cn(
                         "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary shadow-lg transition-all hover:-translate-y-1 cursor-pointer",
-                        crimeType === 'government' && "border-primary"
+                        crimeType === 'Government Crime' && "border-primary"
                       )}
                     >
                       <Shield className="mb-3 h-6 w-6" />
@@ -162,12 +164,12 @@ export function ReportForm() {
                     </Label>
                   </div>
                   <div>
-                    <RadioGroupItem value="civilian" id="civilian" className="peer sr-only" />
+                    <RadioGroupItem value="Civilian Crime" id="civilian" className="peer sr-only" />
                     <Label
                       htmlFor="civilian"
                       className={cn(
                         "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary shadow-lg transition-all hover:-translate-y-1 cursor-pointer",
-                        crimeType === 'civilian' && "border-primary"
+                        crimeType === 'Civilian Crime' && "border-primary"
                       )}
                     >
                       <Users className="mb-3 h-6 w-6" />

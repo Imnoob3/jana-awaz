@@ -9,7 +9,7 @@ import { FileText, MessageSquareQuote, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { Report } from '@/lib/types';
 import Image from 'next/image';
-import { TrackingTimeline } from '@/components/tracking-timeline';
+import { StatusTimeline } from '@/components/status-timeline';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 
@@ -114,7 +114,7 @@ export default function SubmissionStatusPage({ params }: { params: { id: string 
                         <CardDescription>{t('track.status.description')}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <TrackingTimeline />
+                        <StatusTimeline currentStatus={submission.status || 'submitted'} />
                     </CardContent>
                 </Card>
             </div>

@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/header';
 import { LanguageProvider } from '@/context/language-context';
 import { PageTransition } from '@/components/page-transition';
+import { ReCaptchaVerification } from '@/components/recaptcha-verification';
 
 export const metadata: Metadata = {
   title: 'Jana Awaz',
@@ -27,6 +28,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
+        <ReCaptchaVerification />
         <LanguageProvider>
           <ThemeProvider
             attribute="class"
