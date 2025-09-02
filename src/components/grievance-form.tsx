@@ -3,17 +3,42 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button'              {photoPreview ? (
-                <div className="relative group">
-                  <div className="relative w-full h-[300px]">
-                    <Image 
-                      src={photoPreview} 
-                      alt="Photo preview" 
-                      fill
-                      sizes="(max-width: 768px) 100vw, 700px"
-                      className="rounded-md object-contain border shadow-lg bg-muted" 
-                    />
-                  </div>
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
+import Image from 'next/image';
+
+export function GrievanceForm() {
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const router = useRouter();
+
+  const removePhoto = () => {
+    setPhotoPreview(null);
+  };
+
+  return (
+    <div>
+      {photoPreview ? (
+        <div className="relative group">
+          <div className="relative w-full h-[300px]">
+            <Image
+              src={photoPreview}
+              alt="Photo preview"
+              fill
+              sizes="(max-width: 768px) 100vw, 700px"
+              className="rounded-md object-contain border shadow-lg bg-muted"
+            />
+            <Button 
+              type="button" 
+              variant="destructive" 
+              size="icon" 
+              className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" 
+              onClick={removePhoto}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ) : null}
                   <Button 
                     type="button" 
                     variant="destructive" 

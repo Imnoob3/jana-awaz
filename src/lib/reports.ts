@@ -1,6 +1,49 @@
 import type { Grievance, GrievanceComment } from './types';
 import { supabase } from './supabase';
 
+// Admin functions for managing grievances and comments
+export const deleteGrievanceComment = async (grievanceId: string, commentId: string): Promise<void> => {
+  const { error } = await supabase
+    .from('grievance_comments')
+    .delete()
+    .eq('id', commentId)
+    .eq('grievance_id', grievanceId);
+
+  if (error) throw error;
+};
+
+// Delete a grievance and its associated data
+export const deleteGrievance = async (id: string): Promise<void> => {
+  try {
+    // First delete all comments
+    const { error: commentsError } = await supabase
+      .from('grievance_comments')
+      .delete()
+      .eq('grievance_id', id);
+
+    if (commentsError) throw commentsError;
+
+    // Then delete all likes
+    const { error: likesError } = await supabase
+      .from('grievance_likes')
+      .delete()
+      .eq('grievance_id', id);
+
+    if (likesError) throw likesError;
+
+    // Finally delete the grievance
+    const { error } = await supabase
+      .from('grievances')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error deleting grievance:', error);
+    throw error;
+  }
+};
+
 const REPORTS_KEY = 'reports';
 
 export const addGrievance = async (grievance: Omit<Grievance, 'id' | 'createdAt'>) => {
