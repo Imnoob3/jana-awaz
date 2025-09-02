@@ -1,87 +1,181 @@
-
-'use client';
-
-import type { Grievance } from './types';
+import type { Grievance, GrievanceComment } from './types';
+import { supabase } from './supabase';
 
 const REPORTS_KEY = 'reports';
-const GRIEVANCES_KEY = 'grievances';
 
-// This file is now only used for local mock data for grievances,
-// as the main report submission now goes directly to Supabase.
-// The local mock data for reports is no longer used but is kept
-// here for potential future reference or local testing.
+export const addGrievance = async (grievance: Omit<Grievance, 'id' | 'createdAt'>) => {
+  const { data, error } = await supabase
+    .from('grievances')
+    .insert([
+      {
+        title: grievance.title,
+        description: grievance.description,
+        photo_url: grievance.photoDataUri,
+        created_at: new Date().toISOString(),
+      }
+    ])
+    .select()
+    .single();
 
-
-// Helper to safely access localStorage
-const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
-  if (typeof window === 'undefined') {
-    return defaultValue;
+  if (error) {
+    throw error;
   }
-  try {
-    const item = window.localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
-    console.error(`Error reading from localStorage key “${key}”:`, error);
-    return defaultValue;
-  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    photoDataUri: data.photo_url,
+    createdAt: data.created_at,
+  };
 };
 
-const setLocalStorageItem = <T>(key: string, value: T) => {
-  if (typeof window === 'undefined') {
-    return;
+export const getGrievances = async (): Promise<Grievance[]> => {
+  const { data, error } = await supabase
+    .from('grievances')
+    .select(`
+      *,
+      likes_count,
+      grievance_comments (
+        id,
+        text,
+        created_at
+      )
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw error;
   }
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.error(`Error setting localStorage key “${key}”:`, error);
-  }
+
+  return data.map(grievance => ({
+    id: grievance.id,
+    title: grievance.title,
+    description: grievance.description,
+    photoDataUri: grievance.photo_url,
+    createdAt: grievance.created_at,
+    likes: grievance.likes_count || 0,
+    comments: (grievance.grievance_comments || []).map((comment: any) => ({
+      id: comment.id,
+      grievanceId: grievance.id,
+      text: comment.text,
+      createdAt: comment.created_at,
+    })),
+  }));
 };
 
-const initialGrievances: Grievance[] = [
-    {
-        id: '1722384-21-5-11',
-        title: 'Lack of Public Toilets in Ratna Park',
-        description: 'The number of public toilets in the Ratna Park area is severely insufficient. This causes great inconvenience to the thousands of commuters and pedestrians who use the area daily. We request the local government to install more clean and accessible public toilets.',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
-        photoDataUri: 'https://picsum.photos/400/300'
+export const getGrievanceById = async (id: string): Promise<Grievance | null> => {
+  const { data, error } = await supabase
+    .from('grievances')
+    .select(`
+      *,
+      likes_count,
+      grievance_comments (
+        id,
+        text,
+        created_at
+      )
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    photoDataUri: data.photo_url,
+    createdAt: data.created_at,
+    likes: data.likes_count || 0,
+    comments: (data.grievance_comments || []).map((comment: any) => ({
+      id: comment.id,
+      grievanceId: data.id,
+      text: comment.text,
+      createdAt: comment.created_at,
+    })),
+  };
+};
+
+export const toggleGrievanceLike = async (grievanceId: string): Promise<{ success: boolean; isLiked: boolean }> => {
+  const session = await supabase.auth.getSession();
+  const userId = session.data.session?.user?.id;
+  
+  if (!userId) {
+    throw new Error('User must be logged in to like grievances');
+  }
+
+  // Start a Supabase transaction
+  const { data: existingLike, error: checkError } = await supabase
+    .from('grievance_likes')
+    .select('id')
+    .eq('grievance_id', grievanceId)
+    .eq('user_id', userId)
+    .single();
+
+  if (checkError && checkError.code !== 'PGRST116') {
+    throw checkError;
+  }
+
+  try {
+    if (existingLike) {
+      // Unlike - first update the count, then remove the like
+      const { error: rpcError } = await supabase
+        .rpc('decrement_likes', { grievance_id: grievanceId });
+      
+      if (rpcError) throw rpcError;
+
+      const { error: deleteError } = await supabase
+        .from('grievance_likes')
+        .delete()
+        .eq('id', existingLike.id);
+
+      if (deleteError) throw deleteError;
+
+      return { success: true, isLiked: false };
+    } else {
+      // Like - first add the like, then update the count
+      const { error: insertError } = await supabase
+        .from('grievance_likes')
+        .insert([{ grievance_id: grievanceId, user_id: userId }]);
+
+      if (insertError) throw insertError;
+
+      const { error: rpcError } = await supabase
+        .rpc('increment_likes', { grievance_id: grievanceId });
+      
+      if (rpcError) throw rpcError;
+
+      return { success: true, isLiked: true };
     }
-];
-
-if (typeof window !== 'undefined' && !localStorage.getItem(GRIEVANCES_KEY)) {
-  setLocalStorageItem(GRIEVANCES_KEY, initialGrievances);
-}
-
-
-// A simple, URL-safe unique ID generator.
-const generateUniqueId = () => {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    return { success: false, isLiked: !!existingLike };
+  }
 };
 
-export function addGrievance(grievance: Omit<Grievance, 'id' | 'createdAt'>): Grievance {
-    const grievances = getLocalStorageItem<Grievance[]>(GRIEVANCES_KEY, []);
-    const newGrievance: Grievance = {
-        ...grievance,
-        id: generateUniqueId(),
-        createdAt: new Date().toISOString(),
-    };
-    grievances.unshift(newGrievance);
-    setLocalStorageItem(GRIEVANCES_KEY, grievances);
-    return newGrievance;
-}
+export const addGrievanceComment = async (grievanceId: string, text: string): Promise<GrievanceComment> => {
+  const { data, error } = await supabase
+    .from('grievance_comments')
+    .insert([
+      { grievance_id: grievanceId, text }
+    ])
+    .select()
+    .single();
 
-export function getGrievances(): Grievance[] {
-    const grievances = getLocalStorageItem<Grievance[]>(GRIEVANCES_KEY, []);
-    return grievances.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-}
+  if (error) throw error;
 
-export function getGrievanceById(id: string): Grievance | undefined {
-    const grievances = getLocalStorageItem<Grievance[]>(GRIEVANCES_KEY, []);
-    return grievances.find(g => g.id === id);
-}
+  return {
+    id: data.id,
+    grievanceId: data.grievance_id,
+    text: data.text,
+    createdAt: data.created_at,
+  };
+};
 
-// The report functions below are no longer used by the main application flow
-// but are kept for reference.
-
+// Legacy code for reports
 type LocalReport = {
     id: string;
     reportText: string;
@@ -92,7 +186,6 @@ type LocalReport = {
     district: string;
     localAddress: string;
 }
-
 
 const initialReports: LocalReport[] = [
     {
@@ -117,14 +210,36 @@ const initialReports: LocalReport[] = [
     },
 ];
 
+// Helper to safely access localStorage
+const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
+  if (typeof window === 'undefined') {
+    return defaultValue;
+  }
+  try {
+    const item = window.localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.error(`Error reading from localStorage key "${key}":`, error);
+    return defaultValue;
+  }
+};
+
+const setLocalStorageItem = <T>(key: string, value: T) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error(`Error setting localStorage key "${key}":`, error);
+  }
+};
+
 if (typeof window !== 'undefined' && !localStorage.getItem(REPORTS_KEY)) {
   setLocalStorageItem(REPORTS_KEY, initialReports);
 }
-
 
 export function getReportsByAgency(agency: 'Government' | 'Civilian' | 'ICC'): LocalReport[] {
   const reports = getLocalStorageItem<LocalReport[]>(REPORTS_KEY, []);
   return reports.filter(report => report.crimeType === agency).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
-
-    

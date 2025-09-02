@@ -3,8 +3,28 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button'              {photoPreview ? (
+                <div className="relative group">
+                  <div className="relative w-full h-[300px]">
+                    <Image 
+                      src={photoPreview} 
+                      alt="Photo preview" 
+                      fill
+                      sizes="(max-width: 768px) 100vw, 700px"
+                      className="rounded-md object-contain border shadow-lg bg-muted" 
+                    />
+                  </div>
+                  <Button 
+                    type="button" 
+                    variant="destructive" 
+                    size="icon" 
+                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    onClick={removePhoto}
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">{t('reportForm.removePhoto')}</span>
+                  </Button>
+                </div>)t { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,7 +88,7 @@ export function GrievanceForm() {
     }
   };
   
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrors({});
@@ -77,7 +97,7 @@ export function GrievanceForm() {
     const validatedFields = grievanceSchema.safeParse({
         title: formData.get('title'),
         description: formData.get('description'),
-        photoDataUri: formData.get('photoDataUri'),
+        photoDataUri: photoPreview,
     });
 
     if (!validatedFields.success) {
@@ -93,13 +113,18 @@ export function GrievanceForm() {
     }
 
     try {
-        const newGrievance = addGrievance(validatedFields.data);
+        const newGrievance = await addGrievance(validatedFields.data);
+        toast({
+            title: 'Grievance Submitted',
+            description: 'Your grievance has been submitted successfully.',
+        });
         router.push(`/submission-confirmation/${newGrievance.id}`);
     } catch (error) {
+        console.error('Error submitting grievance:', error);
         toast({
             variant: 'destructive',
             title: t('toast.error'),
-            description: 'An unexpected error occurred.',
+            description: 'An unexpected error occurred while submitting your grievance. Please try again.',
         });
         setIsSubmitting(false);
     }

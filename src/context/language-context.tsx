@@ -7,7 +7,7 @@ const translations = {
   en: {
     "header": {
       "fileReport": "File a Report",
-      "viewReports": "View Reports",
+      "viewGrievances": "Recent Grievances",
       "trackSubmission": "Track Submission"
     },
     "home": {

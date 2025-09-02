@@ -15,12 +15,27 @@ export type Report = {
   feedback_by?: string;
 };
 
+export type GrievanceComment = {
+  id: string;
+  grievanceId: string;
+  text: string;
+  createdAt: string;
+};
+
+export type GrievanceLike = {
+  id: string;
+  grievanceId: string;
+  createdAt: string;
+};
+
 export type Grievance = {
   id: string;
   title: string;
   description: string;
   photoDataUri?: string;
   createdAt: string;
+  likes: number;
+  comments: GrievanceComment[];
 };
 
     

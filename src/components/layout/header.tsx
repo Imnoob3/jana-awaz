@@ -27,8 +27,8 @@ export default function Header() {
              <Link href="/grievance" className="transition-colors hover:text-foreground/80 text-muted-foreground">
               {t('home.voiceGrievance')}
             </Link>
-            <Link href="/reports" className="transition-colors hover:text-foreground/80 text-muted-foreground">
-              {t('header.viewReports')}
+            <Link href="/grievances" className="transition-colors hover:text-foreground/80 text-muted-foreground">
+              {t('header.viewGrievances')}
             </Link>
              <Link href="/track" className="transition-colors hover:text-foreground/80 text-muted-foreground">
               {t('header.trackSubmission')}
@@ -65,8 +65,8 @@ export default function Header() {
                     </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                    <Link href="/reports" className="transition-colors hover:text-foreground/80 text-muted-foreground">
-                    {t('header.viewReports')}
+                    <Link href="/grievances" className="transition-colors hover:text-foreground/80 text-muted-foreground">
+                    {t('header.viewGrievances')}
                     </Link>
                 </SheetClose>
                  <SheetClose asChild>
